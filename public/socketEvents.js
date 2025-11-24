@@ -89,7 +89,4 @@ socket.on('left-call', () => {
   });
 });
 
-
-
-
 }
