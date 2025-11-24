@@ -4,7 +4,7 @@ export function getElement(id) {
 }
 
 export function addParticipant(name) {
-  const list = getElement('participantList'); // ✅ Correct ID
+  const list = getElement('participantList'); // Correct ID
   if (!list) return console.warn('participantList element not found.');
 
   const item = document.createElement('li');
@@ -51,7 +51,6 @@ export function appendChatMessage(text, isMine) {
   const msgDiv = document.createElement('div');
   msgDiv.className = isMine ? 'chat-message mine' : 'chat-message';
 
-  // Split message to extract timestamp
   const [userAndMsg, timePart] = text.split(' - (');
   const timestamp = timePart ? timePart.replace(')', '') : '';
 
