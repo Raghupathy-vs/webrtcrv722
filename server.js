@@ -114,7 +114,7 @@ app.post("/upload-video", upload.single("video"), (req, res) => {
     return res.status(400).json({ message: "No video file uploaded" });
   }
 
-  console.log("🎥 Video uploaded:", req.file.path);
+  console.log("Video uploaded:", req.file.path);
 
   res.json({
     success: true,
@@ -134,15 +134,15 @@ app.post("/send-reminder", async (req, res) => {
     from: `"Meeting Reminder" <${process.env.GMAIL_USER}>`,
     to: userEmail,
     subject: "Meeting Scheduled",
-    text: `📅 Your meeting is on ${reminderDate}\n📝 Message: ${reminderMsg}\n\nSent by - ${username || "Anonymous"}`, 
+    text: `Your meeting is on ${reminderDate}\n Message: ${reminderMsg}\n\nSent by - ${username || "Anonymous"}`, 
   };
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log("✅ Reminder mail sent to:", userEmail);
+    console.log("Reminder mail sent to:", userEmail);
     res.json({ message: "Meeting reminder sent successfully!" });
   } catch (error) {
-    console.error("❌ Mail sending failed:", error);
+    console.error("Mail sending failed:", error);
     res.status(500).json({ message: "Error sending mail" });
   }
 });
