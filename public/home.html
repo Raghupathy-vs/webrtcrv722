@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WebRTC Meeting | Home</title>
+  <link href="/home.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body>
+   <h2 class="logo" aria-label="G Meet - Video meetings"></h2>
+
+       <button id="logoutBtn" class="btn logout" style="display:none;">Logout</button>
+
+  <div class="meeting-section">
+    <h1>Welcome to WebRTC Meeting</h1>
+    <p>Start a new meeting or join an existing one.</p>
+
+    <div class="meeting-buttons">
+      <button id="newMeetingBtn" class="btn new">+ New Meeting</button>
+
+    </div>
+
+    <div class="join-section">
+      <input type="text" id="meetingIdInput" placeholder="Enter Meeting ID" />
+      <button id="joinMeetingBtn" class="btn join">Join Meeting</button>
+    </div>
+
+  </div>
+
+  <div class="auth-box" id="authBox">
+    <div class="tabs">
+      <button class="tab active" id="loginTab">Login</button>
+      <button class="tab" id="signupTab">Signup</button>
+    </div>
+
+    <form id="loginForm" class="form active">
+
+            <input type="email" id="loginEmail" name="email" placeholder="Enter your Email Id" required />
+      <input type="password" id="loginPassword" name="password" placeholder="Enter your Password" required />
+
+      <button type="submit">Login</button>
+    </form>
+
+    <form id="signupForm" class="form">
+      <input type="text" id="signupName" name="username" placeholder="Enter Full Name" required />
+      <input type="email" id="signupEmail" name="email" placeholder="Enter your Email Id" required />
+      <input type="password" id="signupPassword" name="password" placeholder="Enter your Password" required />
+      <button type="submit">Signup</button>
+    </form>
+  </div>
+  <script src="/script.js"></script>
+  <script>
+
+
+
+document.getElementById('newMeetingBtn').addEventListener('click', () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let meetingId = '';
+  for (let i = 0; i < 8; i++) meetingId += chars.charAt(Math.floor(Math.random() * chars.length));
+
+  localStorage.setItem('generatedMeetingId', meetingId);
+
+const username = document.getElementById("loginEmail").value;
+localStorage.setItem("username", username);
+
+  window.location.href = '/index.html';
+});
+
+
+
+</script>
+</body>
+</html>
