@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const db = require("../db"); // ✅ use shared DB connection
+const db = require("../db"); 
 
 // --- REGISTER ---
 router.post("/signup", async (req, res) => {
