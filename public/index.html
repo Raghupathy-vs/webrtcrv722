@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>We meet</title>
+<link href="/index.css" rel="stylesheet" type="text/css">
+
+</head>
+<body>
+
+
+<div id="mainLayout">
+
+<!-- Meeting Calendar (hidden initially) -->
+<div id="calendarContainer" style="display: none;">
+  <h3>Meeting Calendar</h3>
+  <input type="date" id="reminderDate">
+  <input type="text" id="reminderMsg" placeholder="Enter reminder message">
+  <button id="setReminderBtn" type="button">➡️</button>
+</div>
+
+
+<div id="chatContainer">
+
+  <h3>Chat Here!</h3>
+  <div id="chatBox">
+    <div id="messages"></div>
+    <div id="chatInputContainer">
+      <input id="chatInput" type="text" placeholder="Type a message..." autocomplete="off">
+      <div id="typingIndicator"></div>        
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
+
+<div class="custom-file">
+  <input type="file" id="fileInput">
+  <label for="fileInput">📤</label>
+</div>  <button id="sendFileBtn">Send File</button>
+
+</div>
+
+
+  <!-- RIGHT SIDE -->
+<div id="rightPanel">
+  
+  <div id="videoContainer">
+    <div id="mainVideoContainer">
+      <video id="mainVideo" autoplay playsinline muted></video>
+
+      <div id="sideThumbnails">
+        <video id="localVideo" class="thumbnail" autoplay muted playsinline></video>
+        <video id="remoteVideo" class="thumbnail" autoplay playsinline></video>
+        <video id="sharedScreen" class="thumbnail" autoplay playsinline muted></video>
+        <video id="remoteScreen" class="thumbnail" autoplay playsinline muted></video>
+      </div>
+    </div>
+  </div>
+  <div id="controls">
+
+<div id="participantWrapper">
+<button id="participantToggleBtn" title="Participants">👥</button>
+
+  <ul id="participantList"></ul>
+</div>
+
+<input id="roomId" placeholder="Meeting ID" class="form-input" />
+<input id="username" placeholder="Enter your name" class="form-input" />
+
+    <button id="startBtn" title="Start Meeting">▶️ </button>
+    <button id="joinBtn" title="Join Meeting">🔗</button>
+
+  <button id="moreReactionsBtn" title="More Reactions">👍</button>
+<button id="openChatBtn" title="Open Chat">💬</button>
+
+
+<div id="emojiPopup" class="popup">
+  <div class="popup-content">
+    <span id="closePopup">&times;</span>
+    <div id="extraReactions">
+        <button>👏</button>
+  <button>😂</button>
+  <button>❤️</button>
+      <button>😎</button>
+      <button>🥳</button>
+      <button>😢</button>
+      <button>🤔</button>
+      <button>🙌</button>
+      <button>🔥</button>
+      <button>💯</button>
+      <button>🌟</button>
+    </div>
+  </div>
+</div>
+    
+
+<button id="cameraToggleBtn" title="Toggle Camera">🎥</button>
+<button id="screenToggleBtn" title="Toggle Screen">🖥️</button>
+
+<button id="recordMainBtn" title="Recording Options">🎞️</button>
+
+<div id="recordPopup" class="record-popup">
+  <div class="record-popup-content">
+    <button id="startRecord">▶️ Start</button>
+    <button id="stopRecord">🔴 Stop</button>
+    <button id="uploadRecord">📤 Upload</button>
+    <button id="closeRecordPopup">❌</button>
+  </div>
+</div>
+
+<button id="muteButton" title="Mute / Unmute">🎤</button>
+
+    <button id="leaveCallBtn" title="Leave Call">📞</button>
+<button id="endCallBtn" title="End Call">❌</button>
+<button id="themeToggle" title="Change Mode">🌙</button>
+
+<button id="raiseHandBtn" title="Raise Hand">🙋</button>
+<button id="eventBtn" type="button" title="Calendar">📅</button>
+<button id="activityBtn" title="Check Logs">📝</button>
+
+<div id="participantsWrapper">
+  <h3>Room Activities</h3>
+  <div id="participants"></div>
+</div>
+
+  <p id="status"></p>
+
+<div id="notificationss"></div>
+
+</div>
+  </div>
+
+</div>
+
+  
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="main.js"></script>
+
+  <script>
+
+window.addEventListener('DOMContentLoaded', () => {
+  const roomInput = document.getElementById('roomId');
+  const nameInput = document.getElementById('username');
+  const savedId = localStorage.getItem('generatedMeetingId');
+  const savedUser = JSON.parse(localStorage.getItem('loggedInUser'));
+
+  if (savedId && roomInput) {
+    roomInput.value = savedId;
+    localStorage.removeItem('generatedMeetingId');
+  }
+
+  if (savedUser && nameInput) {
+    nameInput.value = savedUser.username;  // or .name if your backend uses that
+  }
+});
+
+
+
+const mainVideo = document.getElementById('mainVideo');
+const thumbnails = document.querySelectorAll('.thumbnail');
+
+thumbnails.forEach(thumb => {
+  thumb.addEventListener('click', () => {
+    const tempStream = mainVideo.srcObject;
+    mainVideo.srcObject = thumb.srcObject;
+    thumb.srcObject = tempStream;
+
+    const tempMuted = mainVideo.muted;
+    mainVideo.muted = thumb.muted;
+    thumb.muted = tempMuted;
+  });
+});
+
+
+
+const themeToggle = document.getElementById("themeToggle");
+
+if (localStorage.getItem("theme") === "dark") {
+  document.body.classList.add("dark-mode");
+  themeToggle.textContent = "☀️";
+}
+
+themeToggle.addEventListener("click", () => {
+  document.body.classList.toggle("dark-mode");
+
+  if (document.body.classList.contains("dark-mode")) {
+    themeToggle.textContent = "☀️";
+    localStorage.setItem("theme", "dark");
+  } else {
+    themeToggle.textContent = "🌙";
+    localStorage.setItem("theme", "light");
+  }
+});
+
+
+
+const eventBtn = document.getElementById("eventBtn");
+const calendarContainer = document.getElementById("calendarContainer");
+
+eventBtn.addEventListener("click", () => {
+  if (calendarContainer.style.display === "none") {
+    calendarContainer.style.display = "block";
+  } else {
+    calendarContainer.style.display = "none";
+  }
+});
+
+
+function showMeetingStarted() {
+  const popup = document.getElementById("meetingStartPopup");
+
+  popup.classList.add("show");
+
+  setTimeout(() => {
+    popup.classList.remove("show");
+  }, 2500); 
+}
+  </script>
+
+
+<div id="meetingStartPopup">Start your Meeting</div>
+
+</body>
+</html>
