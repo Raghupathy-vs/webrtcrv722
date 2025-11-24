@@ -65,7 +65,7 @@ getElement('startBtn').onclick = async () => {
   const username = getElement('username').value;
   const room = getElement('roomId').value;
 
-  socket.emit('join', { roomId: room, username }); // 1️⃣ emit join (user 1)
+  socket.emit('join', { roomId: room, username }); // emit join (user 1)
 
   peerConnection = createPeerConnection(socket, room);
 
@@ -473,74 +473,6 @@ socket.on("reminderAdded", (reminder) => {
 });
 
 
-
-/*
-function scheduleReminder(reminder) {
-  const reminderTime = new Date(reminder.date).getTime();
-  const now = Date.now();
-  const delay = reminderTime - now;
-
-  if (delay > 0) {
-    setTimeout(() => {
-      // Show alert
-      alert("📅 Reminder: " + reminder.msg);
-
-      // Also show in chat/messages
-      const chatBox = document.getElementById("messages");
-      const msgEl = document.createElement("div");
-      msgEl.textContent = "🔔 Reminder: " + reminder.msg;
-      msgEl.className = "reminder-notification";
-      chatBox.appendChild(msgEl);
-
-      // Auto-scroll
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }, delay);
-  }
-}
-
-document.getElementById("setReminderBtn").addEventListener("click", async () => {
-  const date = document.getElementById("reminderDate").value;
-  const msg = document.getElementById("reminderMsg").value;
-  const username = document.getElementById("username").value.trim() || "Anonymous";
-  const room = document.getElementById("roomId").value;
-  const email = document.getElementById("email").value; // user email input
-
-  if (!date || !msg) return alert("Pick a date and message!");
-  if (!email) return alert("Email required to send reminder!");
-
-  const selectedTime = new Date(date).getTime();
-  const now = Date.now();
-  if (selectedTime < now) return alert("⛔ You cannot select a past date!");
-
-  // send to backend
-  try {
-    const res = await fetch("/send-reminder", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        reminderDate: date,
-        reminderMsg: msg,
-        userEmail: email,
-        username: username
-      })
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-      alert("✅ Reminder mail sent successfully!");
-    } else {
-      alert("❌ Failed: " + data.message);
-    }
-  } catch (err) {
-    console.error("Error sending reminder:", err);
-    alert("Error sending reminder email!");
-  }
-
-  // Emit to all participants (for local UI)
-  const reminder = { date, msg, username, room };
-  socket.emit("newReminder", reminder);
-});
-*/
 
 
 document.getElementById('recordMainBtn').onclick = () => {
