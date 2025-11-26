@@ -22,15 +22,19 @@ window.addEventListener('beforeunload', () => {
 });
 
 window.addEventListener('load', async () => {
+  
+  
   const params = new URLSearchParams(window.location.search);
-  const roomId = params.get("roomId");
-  const username = params.get("username");
+  
+    const roomId = params.get("roomId");
+        const username = params.get("username");
   const type = params.get("type");   // "start" or "join"
 
-  const redirected = sessionStorage.getItem("redirectedOnce") === "true";
-  const savedRoomId = sessionStorage.getItem('roomId');
+    const redirected = sessionStorage.getItem("redirectedOnce") === "true";
+  
+      const savedRoomId = sessionStorage.getItem('roomId');
   const savedUserName = sessionStorage.getItem('userName');
-  const savedIsCaller = sessionStorage.getItem('isCaller') === "true";
+      const savedIsCaller = sessionStorage.getItem('isCaller') === "true";
 
   if (roomId) getElement("roomId").value = roomId;
   if (username) getElement("username").value = username;
