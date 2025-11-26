@@ -22,16 +22,24 @@ window.addEventListener('beforeunload', () => {
 });
 
 window.addEventListener('load', async () => {
+  const params = new URLSearchParams(window.location.search);
+  const roomId = params.get("roomId");
+  const username = params.get("username");
+  const type = params.get("type");   // "start" or "join"
+
   const redirected = sessionStorage.getItem("redirectedOnce") === "true";
   const savedRoomId = sessionStorage.getItem('roomId');
   const savedUserName = sessionStorage.getItem('userName');
   const savedIsCaller = sessionStorage.getItem('isCaller') === "true";
 
+  if (roomId) getElement("roomId").value = roomId;
+  if (username) getElement("username").value = username;
+
+
   if (!redirected && savedRoomId && savedUserName) {
     console.log("Rejoining saved session...", savedRoomId, savedUserName);
 
     if (peerConnection) closePeerConnection();
-
     peerConnection = createPeerConnection(socket, savedRoomId);
 
     if (!socket.hasHandlers) {
@@ -51,6 +59,18 @@ window.addEventListener('load', async () => {
 
     started = true;
     isCaller = savedIsCaller;
+
+    return; 
+  }
+
+  if (type === "start") {
+    console.log("Auto starting meeting...");
+    getElement("startBtn").click();
+  }
+
+  if (type === "join") {
+    console.log("Auto joining meeting...");
+    getElement("joinBtn").click();
   }
 
   sessionStorage.removeItem("redirectedOnce");
@@ -65,7 +85,7 @@ getElement('startBtn').onclick = async () => {
   const username = getElement('username').value;
   const room = getElement('roomId').value;
 
-  socket.emit('join', { roomId: room, username }); // emit join (user 1)
+  socket.emit('join', { roomId: room, username });
 
   peerConnection = createPeerConnection(socket, room);
 
@@ -244,26 +264,26 @@ function showRaiseHandPopup(message) {
 
 
 
-getElement('sendBtn').onclick = () => {
-  const message = getElement('chatInput').value.trim();
-  const username = getElement('username').value;
-  const room = getElement('roomId').value;
+document.getElementById("sendBtn").onclick = () => {
+  const message = document.getElementById("chatInput").value.trim();
+  const username = document.getElementById("username").value;
+  const room = document.getElementById("roomId").value;
 
   if (!message) return;
 
-    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const timestamp = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
+  socket.emit("chat-message", { room, username, message, timestamp });
 
-  socket.emit('chat-message', { room, username, message, timestamp });   // send to server
-  appendChatMessage(`${username} : ${message} - (${timestamp})`, false);
-  getElement('chatInput').value = '';
+  appendChatMessage(`${username} : ${message} - (${timestamp})`, true);
 
-  const chats = JSON.parse(sessionStorage.getItem("chatMessages") || "[]");
-  chats.push({ username, message, timestamp, isMine: true });
-  sessionStorage.setItem("chatMessages", JSON.stringify(chats));
+  document.getElementById("chatInput").value = "";
 };
 
 
+socket.on("chat-message", ({ username, message, timestamp }) => {
+  appendChatMessage(`${username} : ${message} - (${timestamp})`, false);
+});
 
 
 
@@ -272,22 +292,11 @@ const chatBtn = getElement('openChatBtn');
 
 chatBtn.addEventListener('click', () => {
   if (chatContainer.style.display === "none") {
-    chatContainer.style.display = "block";  // open chat
+    chatContainer.style.display = "block";  
   } else {
-    chatContainer.style.display = "none";   // close chat
+    chatContainer.style.display = "none";   
   }
 });
-
-
-socket.on('chat-message', ({ username, message, timestamp }) => {
-  appendChatMessage(`${username} : ${message} - (${timestamp})`, false);
-
-  const chats = JSON.parse(sessionStorage.getItem("chatMessages") || "[]");
-  chats.push({ username, message, timestamp, isMine: false });
-  sessionStorage.setItem("chatMessages", JSON.stringify(chats));
-});
-
-
 
 
 
@@ -332,43 +341,39 @@ socket.on('file-share', ({ username, fileName, data }) => {
 
   if (data.startsWith('data:image')) {
     const img = document.createElement('img');
-    img.src = data;
+        img.src = data;
     img.style.maxWidth = '200px';
 
     el.appendChild(document.createTextNode(`${username} sent an image:`));
-    el.appendChild(document.createElement('br')); // line break
+      
+        el.appendChild(document.createElement('br')); 
     el.appendChild(img);
 
-    const downloadLink = document.createElement('a');
-    downloadLink.href = data;
+         const downloadLink = document.createElement('a');
+      
+         downloadLink.href = data;
     downloadLink.download = fileName;  
+    
+    
     downloadLink.textContent = 'Download';
     downloadLink.style.display = 'block';
+    
+    
+    
     downloadLink.style.marginTop = '5px';
     el.appendChild(downloadLink);
 
   } else {
     const link = document.createElement('a');
     link.href = data;
-    link.download = fileName;
-    link.textContent = `${username} sent: ${fileName} (Click to Download)`;
+          link.download = fileName;
+      link.textContent = `${username} sent: ${fileName} (Click to Download)`;
     el.appendChild(link);
   }
 
   messages.appendChild(el);
   messages.scrollTop = messages.scrollHeight;
 });
-
-
-
-const reminderDateInput = document.getElementById("reminderDate");
-const today = new Date();
-const yyyy = today.getFullYear();
-const mm = String(today.getMonth() + 1).padStart(2, '0');
-const dd = String(today.getDate()).padStart(2, '0');
-
-const minDate = `${yyyy}-${mm}-${dd}`;
-reminderDateInput.min = minDate;
 
 
 
@@ -405,6 +410,7 @@ document.addEventListener("DOMContentLoaded", () => {
 socket.on("reaction-display", ({ username, emoji }) => {
   const emojiEl = document.createElement("div");
   emojiEl.className = "floating-emoji";
+          
   emojiEl.textContent = `${username}: ${emoji}`;
 
   document.body.appendChild(emojiEl);
@@ -416,7 +422,8 @@ socket.on("reaction-display", ({ username, emoji }) => {
 
 
 const moreBtn = document.getElementById("moreReactionsBtn");
-const popup = document.getElementById("emojiPopup");
+  
+  const popup = document.getElementById("emojiPopup");
 const closePopup = document.getElementById("closePopup");
 
 moreBtn.addEventListener("click", () => {
@@ -435,43 +442,72 @@ window.addEventListener("click", (event) => {
 
 
 
-
 document.getElementById("setReminderBtn").addEventListener("click", () => {
   const date = document.getElementById("reminderDate").value;
-  const msg = document.getElementById("reminderMsg").value;
-  const username = getElement("username").value.trim() || "Anonymous";
-  const room = getElement("roomId").value;
+        const msg = document.getElementById("reminderMsg").value;
+  const username = document.getElementById("username").value.trim() || "Anonymous";
+    const room = document.getElementById("roomId").value;
 
-  if (!date || !msg) return alert("Pick a date and message!");
+  if (!date || !msg) {
+    return alert("Pick a date and message!");
+  }
 
   const selectedTime = new Date(date).getTime();
   const now = Date.now();
 
-  if (selectedTime < now) {
+  if (selectedTime <= now) {
     return alert("You cannot select a past date!");
   }
 
   const reminder = { date, msg, username, room };
-  socket.emit("newReminder", reminder); // send to server
+  socket.emit("newReminder", reminder);
 });
 
-socket.on("reminderAdded", (reminder) => {
-  const participantsDiv = document.getElementById("participants");
-  const item = document.createElement("div");
 
-  const d = new Date(reminder.date);
-  const formattedDate = d.toLocaleDateString("en-GB");
+socket.on("reminderAdded", (reminder) => {
+    
+  const participantsDiv = document.getElementById("participants");
+      
+    const item = document.createElement("div");
+
+        const d = new Date(reminder.date);
+    const formattedDate = d.toLocaleDateString("en-GB");
   const displayDate = formattedDate.replace(/\//g, "-");
 
   item.className = "room-activity";
-  item.textContent = `${reminder.username}: ${displayDate} -> ${reminder.msg}`;
-
+  item.textContent = `${reminder.username}: ${displayDate} → ${reminder.msg}`;
+  
   participantsDiv.appendChild(item);
   participantsDiv.scrollTop = participantsDiv.scrollHeight;
 
   scheduleReminder(reminder);
 });
 
+
+function scheduleReminder(reminder) {
+  
+  const reminderTime = new Date(reminder.date).getTime();
+      const now = Date.now();
+  
+      const delay = reminderTime - now;
+
+  if (delay <= 0) return; 
+
+  setTimeout(() => {
+    alert("📅 Reminder: " + reminder.msg);
+
+    const chatBox = document.getElementById("messages");
+    const msgEl = document.createElement("div");
+    
+    msgEl.textContent = "🔔 Reminder: " + reminder.msg;
+    
+      msgEl.className = "reminder-notification";
+    chatBox.appendChild(msgEl);
+    
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+  }, delay);
+}
 
 
 
