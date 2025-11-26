@@ -11,7 +11,6 @@
 
 <div id="mainLayout">
 
-<!-- Meeting Calendar (hidden initially) -->
 <div id="calendarContainer" style="display: none;">
   <h3>Meeting Calendar</h3>
   <input type="date" id="reminderDate">
@@ -40,7 +39,6 @@
 </div>
 
 
-  <!-- RIGHT SIDE -->
 <div id="rightPanel">
   
   <div id="videoContainer">
@@ -114,6 +112,7 @@
 <button id="themeToggle" title="Change Mode">🌙</button>
 
 <button id="raiseHandBtn" title="Raise Hand">🙋</button>
+
 <button id="eventBtn" type="button" title="Calendar">📅</button>
 <button id="activityBtn" title="Check Logs">📝</button>
 
@@ -128,7 +127,6 @@
 
 </div>
   </div>
-
 </div>
 
   
@@ -196,13 +194,17 @@ themeToggle.addEventListener("click", () => {
 const eventBtn = document.getElementById("eventBtn");
 const calendarContainer = document.getElementById("calendarContainer");
 
-eventBtn.addEventListener("click", () => {
-  if (calendarContainer.style.display === "none") {
-    calendarContainer.style.display = "block";
-  } else {
-    calendarContainer.style.display = "none";
-  }
+eventBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  calendarContainer.style.display =
+    calendarContainer.style.display === "block" ? "none" : "block";
 });
+
+calendarContainer.addEventListener("click", (e) => {
+  e.stopPropagation();
+});
+
+
 
 
 function showMeetingStarted() {
