@@ -91,7 +91,8 @@ document.getElementById("newMeetingBtn").onclick = () => {
     return;
   }
   const roomId = Math.random().toString(36).substring(2, 8);
-  window.location.href = `/index.html?roomId=${roomId}&username=${loggedUser.username}`;
+  window.location.href =   `/index.html?roomId=${roomId}&username=${loggedUser.username}&type=start`;
+
 };
 
 document.getElementById("joinMeetingBtn").onclick = () => {
@@ -103,7 +104,8 @@ document.getElementById("joinMeetingBtn").onclick = () => {
   const meetingId = document.getElementById("meetingIdInput").value.trim();
   if (!meetingId) return alert("Please enter a Meeting ID");
 
-  window.location.href = `/index.html?roomId=${meetingId}&username=${loggedUser.username}`;
+  window.location.href =   `/index.html?roomId=${meetingId}&username=${loggedUser.username}&type=join`;
+
 };
 
 });
